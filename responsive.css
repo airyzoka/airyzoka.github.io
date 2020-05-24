@@ -206,7 +206,7 @@ p {
   font-size: 24px;
   text-decoration: none;
   box-sizing: border-box;
-  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background: linear-gradient(30deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
   background-size: 400%;
   border-radius: 30px;
 }
@@ -455,4 +455,10 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: center;}
+}
+
+/*  */
+
+.areaC0,.areaC1,.areaC2,.lineC0,.lineC1,.lineC2 {
+  clip-path: url(#clip);
 }

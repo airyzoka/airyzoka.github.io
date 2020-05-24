@@ -136,7 +136,7 @@ d3.tsv("swap.tsv", function (error,tsvData) {
                             .x(function(d){ return x_stocks_scale(d.date); })
                             .y0(y_stocks_scale(0))
                             .y1(function(d){ return y_stocks_scale(d.shareValue); })
-                            .curve(d3.curveCardinal);
+                            ;
 
     let lineWidth = 0.002*WIDTHbl;
     selectStateAndPlot("MH");
@@ -168,41 +168,26 @@ d3.tsv("swap.tsv", function (error,tsvData) {
           let swap = document.getElementsByClassName("lineC"+id+"")[0];
           swap.style["stroke-width"]=lineWidth/3;
         }
-        // if (pid !== 0) {
-        //
-        //   let iList = ["bax","toolBox","xBox","yBox","xGrid","yGrid","baxText"];
-        //   iList.map((i) => {
-        //     let emnt = document.getElementsByClassName(""+i+"")[0];
-        //     console.log(emnt);
-        //     if (emnt) {
-        //       emnt.style.display="none";
-        //     }
-        //   })
-        // }
+
       })
     }//changeProductLine
 
     function plotPrices(error, dataC0, dataC1, dataC2,stateTag) {
-      // console.log(stateTag);
       if (error) throw error;
-      // console.log(chartGroupbl.selectAll(".stockHistory"));
-      // console.log(chartGroupbl.selectAll(".stockHistory")._groups[0]);
-      // console.log(chartGroupbl.selectAll(".stockHistory")._groups[0][0]);
       let gswap = chartGroupbl.selectAll(".stockHistory")._groups[0][0];
       if (gswap) {
           gswap.remove();
       }
+
+
 
       let stockHistory = chartGroupbl.append("g").attr("class","stockHistory");
 
       x_stocks_scale.domain([dataC0[0].date, dataC0[dataC0.length - 1].date]);
       y_stocks_scale.domain(d3.extent(dataC0.concat(dataC1).concat(dataC2), function(d) { return d.shareValue; }));
 
-      // y_stocks_scale.domain([y_stocks_scale.domain()[0], y_stocks_scale.domain()[1]+125])
-      // console.log(y_stocks_scale.domain()[1]);
-
       stockHistory.append("g")
-          .attr("class", "axisStock")
+          .attr("class", "axisStock--x")
           .attr("transform", "translate("+(-WIDTHbl/2+MARGINbl.left)+"," + (HEIGHTbl/2-MARGINbl.bottom) + ")")
           .call(x_stocks_axis.ticks(4))
           .attr("font-size",axisFontSize+"px")
@@ -226,179 +211,33 @@ d3.tsv("swap.tsv", function (error,tsvData) {
 
       [dataC2,dataC1,dataC0].map((e,i) => {
         linePath.append("path").datum(e).attr("class", "lineC"+i).attr("fill","none").attr("stroke",lcolor[i]).attr("stroke-width",lineWidth)
-          .attr("d", line_stocks_smooth)
-          .on('mouseover',mousemoveLine)
-          .on("touchstart", touchLine)
-          .on("touchmove", touchLine)
-          // .on('mouseout',mouseoutLine)
+          .attr("d", line_stocks)
           ;
       });
 
-    let widthStocks = WIDTHbl - MARGINbl.left - MARGINbl.right,
-        heightStocks = HEIGHTbl - MARGINbl.top - MARGINbl.bottom;
-    let xBaxWidth = widthStocks/8;
-    let yBaxWidth = heightStocks/10;
-    let xGrid = stockHistory.append("g").attr("class", "Grid").style("display", "null");
-    xGrid.append("rect")
-        .attr("class", "xGrid")
-        .attr("width", xBaxWidth*0.025)
-        .attr("height", heightStocks)
-        .attr("fill","#AAA")
-        .attr("x", 0.0)
-        .attr("y", -HEIGHTbl/2+MARGINbl.top);
+      stockHistory.append("defs").append("clipPath")
+          .attr("id", "clip")
+          .append("rect")
+          .attr("width", WIDTHbl-MARGINbl.left-MARGINbl.right)
+          .attr("height", HEIGHTbl-MARGINbl.top-MARGINbl.bottom);
 
-    let yGrid = stockHistory.append("g").attr("class", "Grid").style("display", "null");
-    yGrid.append("rect")
-        .attr("class", "xGrid")
-        .attr("width", widthStocks)
-        .attr("height", yBaxWidth*0.025)
-        .attr("fill","#AAA")
-        .attr("x", -WIDTHbl/2+MARGINbl.left)
-        .attr("y", 0.0);
+      var zoom = d3.zoom().scaleExtent([1,32]).translateExtent([[0,0],[WIDTHbl-MARGINbl.left-MARGINbl.right,HEIGHTbl-MARGINbl.top-MARGINbl.bottom]])
+                    .extent([[0,0],[WIDTHbl-MARGINbl.left-MARGINbl.right,HEIGHTbl-MARGINbl.top-MARGINbl.bottom]]).on("zoom",zoomed);
 
-      let focus = stockHistory.append("g")
-          .attr("fill","#EEE")
-          .style("display", "null");
-
-      focus.append("circle")
-          .attr("class","tootip")
-          .attr("stroke-width",2)
-          .attr("r", 5);
-
-
-      var xBox = stockHistory.append("g").attr("class", "xBox").style("display", "null");
-      var yBox = stockHistory.append("g").attr("class", "yBox").style("display", "null");
-
-      xBox.append("rect")
-          .attr("class", "bax")
-          .attr("width", xBaxWidth)
-          .attr("height", yBaxWidth)
-          .attr("x", (-xBaxWidth/2))
-          .attr("y", (HEIGHTbl/2-MARGINbl.bottom+5))
-          .attr("rx", 4)
-          .attr("ry", 4)
-          .attr("fill","#EEE")
-          .attr("stroke","#AAA");
-
-      yBox.append("rect")
-          .attr("class", "bax")
-          .attr("width", yBaxWidth*1.8)
-          .attr("height", yBaxWidth)
-          .attr("x", (-WIDTHbl/2+MARGINbl.left-yBaxWidth*1.8-5))
-          .attr("y", (-yBaxWidth/2))
-          .attr("rx", 4)
-          .attr("ry", 4)
-          .attr("fill","#EEE")
-          .attr("stroke","#AAA");
-
-      yBox.append("text")
-          .attr("font-size",axisFontSize+"px")
-          .attr("dominant-baseline","middle")
-          .style("text-anchor", "middle")
-          .attr("class", "baxText")
-          .attr("x", (-WIDTHbl/2+MARGINbl.left-yBaxWidth*1))
-          .attr("y", 0);
-
-      xBox.append("text")
-          .attr("font-size",axisFontSize+"px")
-          .attr("dominant-baseline","middle")
-          .style("text-anchor", "middle")
-          .attr("class", "baxText")
-          .attr("x", 0)
-          .attr("y", (HEIGHTbl/2-MARGINbl.bottom+yBaxWidth/1.5+3));
-
-      xBox.attr("transform", "translate(" + 0 + "," + 0 + ")");
-      yBox.attr("transform", "translate(" + 0 + "," + 0 + ")");
-
-      function touchLine() {
-
-        let cindex = +this.attributes.class.nodeValue.split("C")[1];
-        // console.log(this.attributes["stroke-width"].nodeValue);
-        xCord = d3.touches(this)[0][0];
-        yCord = d3.touches(this)[0][1];
-        this.attributes["stroke-width"].nodeValue = axisFontSize/5;
-        // console.log(d3.touches(this),xCord,yCord);
-        changeProductLine(cindex);
-
-        let data = [dataC2,dataC1,dataC0][cindex];
-        let x0 = x_stocks_scale.invert(d3.mouse(this)[0]),
-            i = bisectDate(data, x0, 1),
-            d0 = data[i - 1],
-            d1 = data[i - 1],
-            d = x0 - d0.date > d1.date - x0 ? d1 : d0,
-            dt = (d.date),
-            sv = (d.shareValue);
-        focus.transition().duration(250).attr("transform", "translate(" + (xCord-WIDTHbl/2+MARGINbl.left) + "," + (yCord-HEIGHTbl/2+MARGINbl.top) + ")");
-        focus.attr("stroke",lcolor[cindex]).attr("fill",acolor[cindex]);
-
-        xGrid.transition().duration(250).select(".xGrid")
-              .attr("height", heightStocks-yCord)
-              .attr("transform","translate(" + (xCord-WIDTHbl/2+MARGINbl.left) + "," + yCord + ")");
-        yGrid.transition().duration(250).select(".xGrid")
-              .attr("transform","translate(" + 0 + "," + (yCord-HEIGHTbl/2+MARGINbl.top) + ")");
-
-
-        xBoxPos = (xCord>WIDTHbl-1.25*xBaxWidth)?(WIDTHbl/2-0.5*xBaxWidth):(xCord-WIDTHbl/2+MARGINbl.left);
-
-        xBox.transition().duration(250).attr("transform", "translate(" + (xBoxPos) + "," + 0 + ")");
-        yBox.transition().duration(250).attr("transform", "translate(" + 0 + "," + (yCord-HEIGHTbl/2+MARGINbl.top) + ")");
-
-        xBox.select(".baxText").attr("stroke",lcolor[cindex]).attr("fill",lcolor[cindex]).text(dateFormatter(dt));
-        yBox.select(".baxText").attr("stroke",lcolor[cindex]).attr("fill",lcolor[cindex]).text(sv);
-
-        xBox.select(".bax").attr("stroke",lcolor[cindex]).attr("fill",fusColr[cindex]);
-        yBox.select(".bax").attr("stroke",lcolor[cindex]).attr("fill",fusColr[cindex]);
+      function zoomed() {
+        // console.log(d3.event.transform);
+        var zoomt = d3.event.transform, zoomxt = zoomt.rescaleX(x_stocks_scale);
+        stockHistory.select(".areaC0").attr("d",areaLine_stocks.x(function(d){return zoomxt(d.date);}));
+        stockHistory.select(".areaC1").attr("d",areaLine_stocks.x(function(d){return zoomxt(d.date);}));
+        stockHistory.select(".areaC2").attr("d",areaLine_stocks.x(function(d){return zoomxt(d.date);}));
+        stockHistory.select(".lineC0").attr("d",line_stocks.x(function(d){return zoomxt(d.date);}));
+        stockHistory.select(".lineC1").attr("d",line_stocks.x(function(d){return zoomxt(d.date);}));
+        stockHistory.select(".lineC2").attr("d",line_stocks.x(function(d){return zoomxt(d.date);}));
+        stockHistory.select(".axisStock--x").call(x_stocks_axis.scale(zoomxt))
       }
 
-      function mousemoveLine() {
-        // console.log(dateFormatter(x_stocks_scale.invert(d3.mouse(this)[0])));
-        let cindex = +this.attributes.class.nodeValue.split("C")[1];
-        // console.log(this.attributes["stroke-width"].nodeValue);
-        xCord = d3.mouse(this)[0];
-        yCord = d3.mouse(this)[1];
-        this.attributes["stroke-width"].nodeValue = axisFontSize/5;
-        // console.log(xCord,yCord);
-        changeProductLine(cindex);
+      svgbl.call(zoom);
 
-        let data = [dataC2,dataC1,dataC0][cindex];
-        let x0 = x_stocks_scale.invert(d3.mouse(this)[0]),
-            i = bisectDate(data, x0, 1),
-            d0 = data[i - 1],
-            d1 = data[i - 1],
-            d = x0 - d0.date > d1.date - x0 ? d1 : d0,
-            dt = (d.date),
-            sv = (d.shareValue);
-
-
-        focus.transition().duration(250).attr("transform", "translate(" + (xCord-WIDTHbl/2+MARGINbl.left) + "," + (yCord-HEIGHTbl/2+MARGINbl.top) + ")");
-        focus.attr("stroke",lcolor[cindex]).attr("fill",acolor[cindex]);
-
-        xGrid.transition().duration(250).select(".xGrid")
-              .attr("height", heightStocks-yCord)
-              .attr("transform","translate(" + (xCord-WIDTHbl/2+MARGINbl.left) + "," + yCord + ")");
-        yGrid.transition().duration(250).select(".xGrid")
-              .attr("transform","translate(" + 0 + "," + (yCord-HEIGHTbl/2+MARGINbl.top) + ")");
-
-
-        xBoxPos = (xCord>WIDTHbl-1.25*xBaxWidth)?(WIDTHbl/2-0.5*xBaxWidth):(xCord-WIDTHbl/2+MARGINbl.left);
-
-        xBox.transition().duration(250).attr("transform", "translate(" + (xBoxPos) + "," + 0 + ")");
-        yBox.transition().duration(250).attr("transform", "translate(" + 0 + "," + (yCord-HEIGHTbl/2+MARGINbl.top) + ")");
-
-        xBox.select(".baxText").attr("stroke",lcolor[cindex]).attr("fill",lcolor[cindex]).text(dateFormatter(dt));
-        yBox.select(".baxText").attr("stroke",lcolor[cindex]).attr("fill",lcolor[cindex]).text(sv);
-
-        xBox.select(".bax").attr("stroke",lcolor[cindex]).attr("fill",fusColr[cindex]);
-        yBox.select(".bax").attr("stroke",lcolor[cindex]).attr("fill",fusColr[cindex]);
-
-      }
-
-      // function mouseoutLine() {
-      //   // this.attributes["stroke-width"].nodeValue = 2;
-      //   console.log(this.attributes.stroke.nodeValue===focus._groups[0][0].attributes.stroke.nodeValue);
-      //   this.attributes["stroke-width"].nodeValue = (this.attributes.stroke.nodeValue===focus._groups[0][0].attributes.stroke.nodeValue) ? 3:1;
-      //
-      // }
 
       stockHistory.append("g").append("text")
           .attr("x", (axisFontSize*1.5))
@@ -435,27 +274,6 @@ d3.tsv("swap.tsv", function (error,tsvData) {
       // let chartGrouptr = svgtr.append("g").attr("class","rectGroup").attr("transform","translate("+WIDTHtr/2+","+ HEIGHTtr/2+")");
       let rectGroupbr = svgbr.append("g").attr("class","rectGroup")
                            .attr("transform","translate("+1*WIDTHbl/4+","+1*HEIGHTbl/2+")");
-
-      // let textGroupbr = svgbr.append("g").attr("class","textGroup")
-      //                      .attr("transform","translate("+WIDTHtr/2+","+ HEIGHTtr/2+")");
-
-      // rectGrouptr.append("rect")
-      //      .attr("width", WIDTHtr*0.2)
-      //      .attr("height", HEIGHTtr*0.2)
-      //      .attr("x", -WIDTHtr*0.2/2)
-      //      .attr("y", -HEIGHTtr*0.2/2)
-      //      .attr("fill","none")
-      //      .attr("stroke","red")
-      // textGrouptr.append("text")
-      //      .attr("x", 0)
-           // .attr("y", 0)
-           // .attr("fill","blue")
-           // .attr("stroke","none")
-           // .attr("dominant-baseline","middle")
-           // .attr("text-anchor","middle")
-           // .attr("font-size",WIDTHtr*0.1)
-      //      .text("TOP RIGHT");
-
 
       var barColor = '#96ae8d';
       // ["#8856a7","#2ca25f","#f03b20"]
