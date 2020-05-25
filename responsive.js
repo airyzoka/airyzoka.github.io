@@ -359,7 +359,7 @@ d3.tsv("swap.tsv", function (error,tsvData) {
               barBox.select(".dashBarBox").transition().duration(200)
                 .attr("transform", "translate(" + (xScaleHist(d[0])) + "," + 0 + ")")
               // call update functions of pie-chart and legend.
-              pC.update(nD);
+              pC.update(nD,d[0]);
               leg.update(nD);
               selectStateAndPlot(d[0]);
               // plotPrices(null, tsvData.slice(50,96));
@@ -368,7 +368,7 @@ d3.tsv("swap.tsv", function (error,tsvData) {
 
           function mouseout(d){    // utility function to be called on mouseout.
               // reset the pie-chart and legend.
-              pC.update(tF);
+              // pC.update(tF,"Total");
               leg.update(tF);
 
           }
@@ -405,15 +405,15 @@ d3.tsv("swap.tsv", function (error,tsvData) {
           // create svg for pie chart.
           let piesvg = rectGroupbr;
 
-          piesvg.append("text").attr("class","pi-title").text("Market Share")
+          piesvg.append("text").attr("class","pi-title").text("Market Share: Total")
                                                                   .attr("x",0)
-                                                                  .attr("y",-1*HEIGHTbr/2.55)
+                                                                  .attr("y",-1*HEIGHTbr/2.25)
                                                                   .attr("fill","black")
                                                                   .attr("stroke","black")
                                                                   .attr("stroke-width",0.5)
                                                                   .attr("dominant-baseline","middle")
                                                                   .attr("text-anchor","middle")
-                                                                  .attr("font-size",axisFontSize*1.5);
+                                                                  .attr("font-size",axisFontSize*1.75);
 
           // create function to draw the arcs of the pie slices.
           var arc = d3.arc().outerRadius(pieDim.r - 10).innerRadius(0);
@@ -424,16 +424,18 @@ d3.tsv("swap.tsv", function (error,tsvData) {
           // Draw the pie slices.
           piesvg.selectAll("path").data(pie(pD)).enter()
               .append("path")
-              .attr("class","dashPath")
+              .attr("class","pieSegment")
               .attr("d", arc)
               .each(function(d) { this._current = d; })
               .style("fill", function(d) { return segColor(d.data.type); })
               .on("mouseover",mouseover).on("mouseout",mouseout);
 
           // create function to update pie-chart. This will be used by histogram.
-          pC.update = function(nD){
-              piesvg.selectAll("path").data(pie(nD)).transition().duration(500)
+          pC.update = function(nD,stateTag){
+            console.log(stateTag);
+              piesvg.selectAll("path").data(pie(nD)).transition().duration(250)
                   .attrTween("d", arcTween);
+              piesvg.select(".pi-title").text("Market Share: "+stateTag);
           }
           // Utility function to be called on mouseover a pie slice.
             function mouseover(d){

@@ -171,7 +171,7 @@ p {
     font-family: Montserrat, sans-serif;
     position: relative;
     /* max-width: 1080px; */
-    /* height: 100vh; */
+    height: 100vh;
 }
 
 .jumbotron h1{
@@ -337,7 +337,7 @@ p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 600px;
+  height: 100vh;
   margin: 10px;
   padding: 10px;
 }
@@ -419,6 +419,21 @@ p {
 /* -------------------------------------------------------------------------- */
 /* Bar Chart */
 .dashRect:hover {  fill:red; }
+
+/* Pir Chart */
+.pieSegment{
+  transition: 250ms;
+  stroke: #fff;
+  stroke-width: 0.5px;
+}
+.pieSegment:hover{
+  transform: scale(1.075);
+  stroke-width: 3px;
+}
+.pieSegment:active{
+  transform: scale(1.075);
+  stroke-width: 3px;
+}
 /* -------------------------------------------------------------------------- */
 
 
