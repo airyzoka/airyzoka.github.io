@@ -1026,7 +1026,7 @@ eqNloss.append("text").attr("class","hint")
       });
       cumsum /= gridData.length;
       eqNloss.select(".lossText").attr("font-size",eqnBoxWidth/25+"px").text(`Loss: ${+cumsum.toFixed(2)}`);
-      eqNloss.select(".hint").text(`Now use the slider to optimize the loss or pick some more ponts. Have Fun!`);
+      eqNloss.select(".hint").attr("font-size",eqnBoxWidth/40+"px").text(`Now use the slider to optimize the loss or pick some more ponts. Have Fun!`);
     }
 
 
