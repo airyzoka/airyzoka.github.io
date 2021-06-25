@@ -188,7 +188,16 @@ p {
     transform: translate(-50%, -50%);
     /* max-width: 1080px; */
 }
-.sectionButtons {
+
+.sectionButtons.R1 {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  display: flex;
+}
+
+.sectionButtons.R2 {
   position: absolute;
   top: 80%;
   left: 50%;
@@ -212,16 +221,13 @@ p {
 }
 
 .sectionButtons a:hover, .sectionButtons a:active{
-  animation:  animate 8s linear infinite;
+  animation:  4s linear 0s infinite alternate animate;
 }
 
 @keyframes animate {
-  0%{
-    background-position: 0%;
-  }
-  100%{
-    background-position: 400%;
-  }
+  from { background-position: 0%; }
+  to { background-position: 100%; }
+
 }
 
 #clear{
